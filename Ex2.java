@@ -15,8 +15,9 @@ public class Ex2 {
 
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = jf.getSelectedFile();
+            //System.out.println("Selected file: " + selectedFile.getAbsolutePath());   // Debug
             readGraph(selectedFile); // Read nodes and edges from the selected file
-            topSort(); // Perform topological sorting and print the result
+            topSort(); // Topological sort and print result
         }
     }
 
@@ -34,6 +35,7 @@ public class Ex2 {
             while (!(line = r.readLine()).equalsIgnoreCase("[Edges]")) {
                 if (line.trim().length() > 0) {  // Skip empty lines
                     try {
+                        // Split the line into a comma separated list V1,V2 etc
                         String[] nodeNames = line.split(",");
                         for (String n : nodeNames) {
                             n = n.trim();
@@ -66,7 +68,7 @@ public class Ex2 {
                         // Populate graph and update inDegree
                         graph.get(from).add(to);
                         inDegree.put(to, inDegree.getOrDefault(to, 0) + 1);
-                        inDegree.putIfAbsent(from, 0); // Ensure from-node exists in inDegree
+                        inDegree.putIfAbsent(from, 0); // Ensure from node exists in inDegree
                     }
                 } catch (Exception e) { // Something is wrong, Edges should be in format v1:v2
                     r.close();
@@ -77,12 +79,12 @@ public class Ex2 {
         r.close(); // Close the reader
     }
 
-    // Topological sorting using Kahn's algorithm
+    // Topological sorting
     public static void topSort() throws CycleFound {
         Queue<String> queue = new LinkedList<>();
         List<String> sorted = new ArrayList<>();
 
-        // Add all nodes with inDegree 0 to the queue
+        // Add nodes with inDegree 0 to queue
         for (String node : inDegree.keySet()) {
             if (inDegree.get(node) == 0) {
                 queue.add(node);
@@ -93,7 +95,7 @@ public class Ex2 {
             String current = queue.poll();
             sorted.add(current);
 
-            // Reduce inDegree of neighbors and add to queue if inDegree becomes 0
+            // Reduce inDegree of neighbor, add to queue if inDegree becomes 0
             for (String neighbor : graph.getOrDefault(current, new ArrayList<>())) {
                 inDegree.put(neighbor, inDegree.get(neighbor) - 1);
                 if (inDegree.get(neighbor) == 0) {
@@ -122,7 +124,7 @@ class FileFormatException extends Exception { // Input file has the wrong format
 }
 
 @SuppressWarnings("serial")
-class CycleFound extends Exception { // The graph is cyclic
+class CycleFound extends Exception { // The graph contains a cycle
     public CycleFound(String message) {
         super(message);
     }
